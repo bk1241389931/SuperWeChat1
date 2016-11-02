@@ -1,10 +1,10 @@
 /**
  * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,28 +24,39 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.utils.EaseCommonUtils;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatApplication;
 import cn.ucai.superwechat.SuperWeChatHelper;
-import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.db.SuperWeChatDBManager;
-import cn.ucai.superwechat.utils.L;
-
-import com.hyphenate.easeui.utils.EaseCommonUtils;
+import cn.ucai.superwechat.utils.MD5;
+import cn.ucai.superwechat.utils.MFGT;
 
 /**
  * Login screen
- * 
+ *
  */
 public class LoginActivity extends BaseActivity {
-
 	private static final String TAG = "LoginActivity";
 	public static final int REQUEST_CODE_SETNICK = 1;
-	private EditText usernameEditText;
-	private EditText passwordEditText;
+	@BindView(R.id.img_back)
+	ImageView mImgBack;
+	@BindView(R.id.txt_title)
+	TextView mTxtTitle;
+	@BindView(R.id.et_username)
+	EditText mEtUsername;
+	@BindView(R.id.et_password)
+	EditText mEtPassword;
 
 	private boolean progressShow;
 	private boolean autoLogin = false;
@@ -53,8 +64,7 @@ public class LoginActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.em_activity_login);
-		L.e("LoginActivity=");
+
 		// enter the main activity if already logged in
 		if (SuperWeChatHelper.getInstance().isLoggedIn()) {
 			autoLogin = true;
@@ -62,16 +72,30 @@ public class LoginActivity extends BaseActivity {
 
 			return;
 		}
-//		setContentView(R.layout.em_activity_login);
+		setContentView(R.layout.em_activity_login);
+		ButterKnife.bind(this);
 
-		usernameEditText = (EditText) findViewById(R.id.username);
-		passwordEditText = (EditText) findViewById(R.id.password);
+		setListener();
+		initView();
 
+
+	}
+
+	private void initView() {
+		if (SuperWeChatHelper.getInstance().getCurrentUsernName() != null) {
+			mEtUsername.setText(SuperWeChatHelper.getInstance().getCurrentUsernName());
+		}
+		mImgBack.setVisibility(View.VISIBLE);
+		mTxtTitle.setVisibility(View.VISIBLE);
+		mTxtTitle.setText(R.string.login);
+	}
+
+	private void setListener() {
 		// if user changed, clear the password
-		usernameEditText.addTextChangedListener(new TextWatcher() {
+		mEtUsername.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				passwordEditText.setText(null);
+				mEtPassword.setText(null);
 			}
 
 			@Override
@@ -84,23 +108,18 @@ public class LoginActivity extends BaseActivity {
 
 			}
 		});
-		if (SuperWeChatHelper.getInstance().getCurrentUsernName() != null) {
-			usernameEditText.setText(SuperWeChatHelper.getInstance().getCurrentUsernName());
-		}
 	}
 
 	/**
 	 * login
-	 * 
-	 * @param view
 	 */
-	public void login(View view) {
+	public void login() {
 		if (!EaseCommonUtils.isNetWorkConnected(this)) {
 			Toast.makeText(this, R.string.network_isnot_available, Toast.LENGTH_SHORT).show();
 			return;
 		}
-		String currentUsername = usernameEditText.getText().toString().trim();
-		String currentPassword = passwordEditText.getText().toString().trim();
+		String currentUsername = mEtUsername.getText().toString().trim();
+		String currentPassword = mEtPassword.getText().toString().trim();
 
 		if (TextUtils.isEmpty(currentUsername)) {
 			Toast.makeText(this, R.string.User_name_cannot_be_empty, Toast.LENGTH_SHORT).show();
@@ -127,15 +146,15 @@ public class LoginActivity extends BaseActivity {
 
 		// After logout，the DemoDB may still be accessed due to async callback, so the DemoDB will be re-opened again.
 		// close it before login to make sure DemoDB not overlap
-        SuperWeChatDBManager.getInstance().closeDB();
+		SuperWeChatDBManager.getInstance().closeDB();
 
-        // reset current user name before login
-        SuperWeChatHelper.getInstance().setCurrentUserName(currentUsername);
-        
+		// reset current user name before login
+		SuperWeChatHelper.getInstance().setCurrentUserName(currentUsername);
+
 		final long start = System.currentTimeMillis();
 		// call login method
 		Log.d(TAG, "EMClient.getInstance().login");
-		EMClient.getInstance().login(currentUsername, currentPassword, new EMCallBack() {
+		EMClient.getInstance().login(currentUsername, MD5.getMessageDigest(currentPassword), new EMCallBack() {
 
 			@Override
 			public void onSuccess() {
@@ -143,10 +162,10 @@ public class LoginActivity extends BaseActivity {
 
 
 				// ** manually load all local groups and conversation
-			    EMClient.getInstance().groupManager().loadAllGroups();
-			    EMClient.getInstance().chatManager().loadAllConversations();
+				EMClient.getInstance().groupManager().loadAllGroups();
+				EMClient.getInstance().chatManager().loadAllConversations();
 
-			    // update current user's display name for APNs
+				// update current user's display name for APNs
 				boolean updatenick = EMClient.getInstance().updateCurrentUserNick(
 						SuperWeChatApplication.currentUserNick.trim());
 				if (!updatenick) {
@@ -154,7 +173,7 @@ public class LoginActivity extends BaseActivity {
 				}
 
 				if (!LoginActivity.this.isFinishing() && pd.isShowing()) {
-				    pd.dismiss();
+					pd.dismiss();
 				}
 				// get user's info (this should be get from App's server or 3rd party service)
 				SuperWeChatHelper.getInstance().getUserProfileManager().asyncGetCurrentUserInfo();
@@ -188,21 +207,27 @@ public class LoginActivity extends BaseActivity {
 		});
 	}
 
-	
-	/**
-	 * register
-	 * 
-	 * @param view
-	 */
-	public void register(View view) {
-		startActivityForResult(new Intent(this, RegisterActivity.class), 0);
-	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		if (autoLogin) {
 			return;
+		}
+	}
+
+	@OnClick({R.id.img_back, R.id.btn_login, R.id.btn_register})
+	public void onClick(View view) {
+		switch (view.getId()) {
+			case R.id.img_back:
+				MFGT.finish(this);
+				break;
+			case R.id.btn_login:
+				login();
+				break;
+			case R.id.btn_register:
+				MFGT.gotoRegister(this);
+				break;
 		}
 	}
 }
