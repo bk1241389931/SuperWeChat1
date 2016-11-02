@@ -143,7 +143,7 @@ public class LoginActivity extends BaseActivity {
 		}
 
 		progressShow = true;
-		pd = new ProgressDialog(LoginActivity.this);
+		pd = new ProgressDialog(mContext);
 		pd.setCanceledOnTouchOutside(false);
 		pd.setOnCancelListener(new OnCancelListener() {
 
@@ -206,20 +206,22 @@ public class LoginActivity extends BaseActivity {
 			@Override
 			public void onSuccess(String s) {
 				L.e(TAG,"s="+s);
-				if(s!=null && s!=""){
+				if (s != null && s != "") {
 					Result result = ResultUtils.getResultFromJson(s, User.class);
-					if(result!=null && result.isRetMsg()){
+					if (result != null && result.isRetMsg()) {
 						User user = (User) result.getRetData();
-						if(user!=null) {
+						if (user != null) {
 							UserDao dao = new UserDao(mContext);
 							dao.saveUser(user);
 							SuperWeChatHelper.getInstance().setCurrentUser(user);
 							loginSuccess();
 						}
-					}else{
+					} else {
 						pd.dismiss();
-						L.e(TAG,"login fail,"+result);
+						L.e(TAG, "login fail," + result);
 					}
+				} else {
+					pd.dismiss();
 				}
 //				loginSuccess();
 			}
@@ -279,5 +281,10 @@ public class LoginActivity extends BaseActivity {
 				MFGT.gotoRegister(this);
 				break;
 		}
+	}
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		pd.dismiss();
 	}
 }
