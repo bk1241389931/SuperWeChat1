@@ -32,6 +32,8 @@ import cn.ucai.superwechat.SuperWeChatApplication;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.db.SuperWeChatDBManager;
+import cn.ucai.superwechat.utils.L;
+
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 
 /**
@@ -39,6 +41,7 @@ import com.hyphenate.easeui.utils.EaseCommonUtils;
  * 
  */
 public class LoginActivity extends BaseActivity {
+
 	private static final String TAG = "LoginActivity";
 	public static final int REQUEST_CODE_SETNICK = 1;
 	private EditText usernameEditText;
@@ -50,7 +53,8 @@ public class LoginActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		setContentView(R.layout.em_activity_login);
+		L.e("LoginActivity=");
 		// enter the main activity if already logged in
 		if (SuperWeChatHelper.getInstance().isLoggedIn()) {
 			autoLogin = true;
@@ -58,7 +62,7 @@ public class LoginActivity extends BaseActivity {
 
 			return;
 		}
-		setContentView(R.layout.em_activity_login);
+//		setContentView(R.layout.em_activity_login);
 
 		usernameEditText = (EditText) findViewById(R.id.username);
 		passwordEditText = (EditText) findViewById(R.id.password);

@@ -18,7 +18,7 @@ public class MFGT {
     public static void startActivity(Activity context, Class<?> cls) {
         Intent intent = new Intent();
         intent.setClass(context, cls);
-        startActivity(context, intent);
+        startActivity(context,intent);
     }
 
     public static void startActivity(Context context, Intent intent) {
@@ -27,14 +27,17 @@ public class MFGT {
     }
 
 
+
     public static void startActivityForResult(Activity context, Intent intent, int requestCode) {
         context.startActivityForResult(intent,requestCode);
         context.overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
     public static void gotoLogin(Activity context) {
+        L.e("gotoLogin"+context);
         startActivity(context,LoginActivity.class);
     }
     public static void gotoRegister(Activity context) {
+        L.e("gotoRegister"+context);
         startActivity(context,RegisterActivity.class);
     }
 }
