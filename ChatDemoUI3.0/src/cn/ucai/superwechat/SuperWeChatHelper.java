@@ -219,6 +219,11 @@ public class SuperWeChatHelper {
             public EaseUser getUser(String username) {
                 return getUserInfo(username);
             }
+
+            @Override
+            public User getAppUser(String username) {
+                return null;
+            }
         });
 
         //set options 
@@ -851,8 +856,6 @@ public class SuperWeChatHelper {
 
     /**
 	 * update contact list
-	 * 
-	 * @param contactList
 	 */
 	public void setContactList(Map<String, EaseUser> aContactList) {
 		if(aContactList == null){
@@ -923,8 +926,6 @@ public class SuperWeChatHelper {
 
 	 /**
      * update user list to cache and database
-     *
-     * @param contactList
      */
     public void updateContactList(List<EaseUser> contactInfoList) {
          for (EaseUser u : contactInfoList) {
