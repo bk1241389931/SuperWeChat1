@@ -45,6 +45,8 @@ import cn.ucai.superwechat.utils.MFGT;
  */
 @SuppressWarnings({"FieldCanBeLocal"})
 public class SettingsActivity extends BaseActivity implements OnClickListener {
+	private static final String TAG = SettingsActivity.class.getSimpleName();
+
 
 	/**
 	 * new message notification
@@ -379,9 +381,10 @@ public class SettingsActivity extends BaseActivity implements OnClickListener {
 					public void run() {
 						pd.dismiss();
 						// show login screen
-						ExitAppUtils.getInstance().exit();
-//						finish();
-						startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
+//						ExitAppUtils.getInstance().exit();
+						finish();
+						startActivity(new Intent(SettingsActivity.this, LoginActivity.class)
+						.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
 
 					}
 				});
