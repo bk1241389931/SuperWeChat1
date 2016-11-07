@@ -271,7 +271,7 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/horizontal_slide"/>
+            android:theme="@style/horizontal_slide" />
 
         <!-- 红包相关Activity start -->
         <!-- 发红包 -->
@@ -477,6 +477,7 @@
 
         <activity android:name=".ui.GuideActivity" />
         <activity android:name=".ui.ProfileActivity" />
+        <activity android:name=".ui.FriendProfileActivity"></activity>
     </application>
 
 </manifest>
