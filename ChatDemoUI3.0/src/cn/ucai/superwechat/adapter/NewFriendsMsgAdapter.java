@@ -167,19 +167,23 @@ public class NewFriendsMsgAdapter extends ArrayAdapter<InviteMessage> {
 					}
 				});
 			} else if (msg.getStatus() == InviteMesageStatus.AGREED) {
+				holder.status.setVisibility(View.VISIBLE);
 				holder.status.setText(str5);
 				holder.status.setBackgroundDrawable(null);
 				holder.status.setEnabled(false);
 			} else if(msg.getStatus() == InviteMesageStatus.REFUSED){
+				holder.status.setVisibility(View.VISIBLE);
 				holder.status.setText(str6);
 				holder.status.setBackgroundDrawable(null);
 				holder.status.setEnabled(false);
 			} else if(msg.getStatus() == InviteMesageStatus.GROUPINVITATION_ACCEPTED){
+				holder.status.setVisibility(View.VISIBLE);
 				String str = msg.getGroupInviter() + str9 + msg.getGroupName();
 				holder.status.setText(str);
 				holder.status.setBackgroundDrawable(null);
 				holder.status.setEnabled(false);
 			} else if(msg.getStatus() == InviteMesageStatus.GROUPINVITATION_DECLINED){
+				holder.status.setVisibility(View.VISIBLE);
 				String str = msg.getGroupInviter() + str10 + msg.getGroupName();
 				holder.status.setText(str);
 				holder.status.setBackgroundDrawable(null);
