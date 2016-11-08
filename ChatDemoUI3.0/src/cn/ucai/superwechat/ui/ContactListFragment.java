@@ -22,6 +22,7 @@ import cn.ucai.superwechat.SuperWeChatHelper.DataSyncListener;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.db.InviteMessgeDao;
 import cn.ucai.superwechat.db.UserDao;
+import cn.ucai.superwechat.utils.MFGT;
 import cn.ucai.superwechat.widget.ContactItemView;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.ui.EaseContactListFragment;
@@ -173,37 +174,6 @@ public class ContactListFragment extends EaseContactListFragment {
         }
     }
     
-	
-	protected class HeaderItemClickListener implements OnClickListener{
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-            case R.id.application_item:
-                // 进入申请与通知页面
-                startActivity(new Intent(getActivity(), NewFriendsMsgActivity.class));
-                break;
-//            case R.id.group_item:
-//                // 进入群聊列表页面
-//                startActivity(new Intent(getActivity(), GroupsActivity.class));
-//                break;
-//            case R.id.chat_room_item:
-//                //进入聊天室列表页面
-//                startActivity(new Intent(getActivity(), PublicChatRoomsActivity.class));
-//                break;
-//            case R.id.robot_item:
-//                //进入Robot列表页面
-//                startActivity(new Intent(getActivity(), RobotsActivity.class));
-//                break;
-
-            default:
-                break;
-            }
-        }
-	    
-	}
-	
-
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -211,7 +181,7 @@ public class ContactListFragment extends EaseContactListFragment {
 	    toBeProcessUsername = toBeProcessUser.getUsername();
 		getActivity().getMenuInflater().inflate(R.menu.em_context_contact_list, menu);
 	}
-
+	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.delete_contact) {
@@ -231,7 +201,6 @@ public class ContactListFragment extends EaseContactListFragment {
 		}
 		return super.onContextItemSelected(item);
 	}
-
 
 	/**
 	 * delete contact
@@ -273,6 +242,35 @@ public class ContactListFragment extends EaseContactListFragment {
 
 			}
 		}).start();
+
+	}
+
+	protected class HeaderItemClickListener implements OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+            case R.id.application_item:
+                // 进入新的朋友
+                MFGT.gotoNewFriendsMsg(getActivity());
+                break;
+            case R.id.group_item:
+                // 进入群聊列表页面
+                startActivity(new Intent(getActivity(), GroupsActivity.class));
+                break;
+//            case R.id.chat_room_item:
+//                //进入聊天室列表页面
+//                startActivity(new Intent(getActivity(), PublicChatRoomsActivity.class));
+//                break;
+//            case R.id.robot_item:
+//                //进入Robot列表页面
+//                startActivity(new Intent(getActivity(), RobotsActivity.class));
+//                break;
+
+            default:
+                break;
+            }
+        }
 
 	}
 	
