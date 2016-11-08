@@ -115,20 +115,20 @@ public class SuperWeChatDBManager {
         }
     }
     
+    public List<String>  getDisabledGroups(){
+        return getList(UserDao.COLUMN_NAME_DISABLED_GROUPS);
+    }
+    
     public void setDisabledGroups(List<String> groups){
         setList(UserDao.COLUMN_NAME_DISABLED_GROUPS, groups);
     }
     
-    public List<String>  getDisabledGroups(){       
-        return getList(UserDao.COLUMN_NAME_DISABLED_GROUPS);
+    public List<String> getDisabledIds(){
+        return getList(UserDao.COLUMN_NAME_DISABLED_IDS);
     }
     
     public void setDisabledIds(List<String> ids){
         setList(UserDao.COLUMN_NAME_DISABLED_IDS, ids);
-    }
-    
-    public List<String> getDisabledIds(){
-        return getList(UserDao.COLUMN_NAME_DISABLED_IDS);
     }
     
     synchronized private void setList(String column, List<String> strList){
@@ -222,7 +222,7 @@ public class SuperWeChatDBManager {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<InviteMessage> msgs = new ArrayList<InviteMessage>();
         if(db.isOpen()){
-            Cursor cursor = db.rawQuery("select * from " + InviteMessgeDao.TABLE_NAME + " desc",null);
+            Cursor cursor = db.rawQuery("select * from " + InviteMessgeDao.TABLE_NAME + " order by "+InviteMessgeDao.COLUMN_NAME_TIME+" desc",null);
             while(cursor.moveToNext()){
                 InviteMessage msg = new InviteMessage();
                 int id = cursor.getInt(cursor.getColumnIndex(InviteMessgeDao.COLUMN_NAME_ID));
