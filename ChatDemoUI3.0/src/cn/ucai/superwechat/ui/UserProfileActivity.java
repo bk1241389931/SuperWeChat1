@@ -61,10 +61,9 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 	TextView mTvUserinfoNick;
 	@BindView(R.id.tv_userinfo_name)
 	TextView mTvUserinfoName;
+	User user = null;
 	private ProgressDialog dialog;
 	private RelativeLayout rlNickName;
-
-	User user = null;
 
 	@Override
 	protected void onCreate(Bundle arg0) {
@@ -381,7 +380,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 			L.e("file path="+file.getAbsolutePath());
 			try {
 				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-				bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
 				bos.flush();
 				bos.close();
 			} catch (IOException e) {
