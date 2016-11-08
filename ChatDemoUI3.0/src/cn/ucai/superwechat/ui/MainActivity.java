@@ -66,6 +66,7 @@ import cn.ucai.superwechat.dialog.TitleMenu.ActionItem;
 import cn.ucai.superwechat.dialog.TitleMenu.TitlePopup;
 import cn.ucai.superwechat.runtimepermissions.PermissionsManager;
 import cn.ucai.superwechat.runtimepermissions.PermissionsResultAction;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.MFGT;
 import cn.ucai.superwechat.widget.DMTabHost;
 import cn.ucai.superwechat.widget.MFViewPager;
@@ -74,16 +75,6 @@ import cn.ucai.superwechat.widget.MFViewPager;
 public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedChangeListener, ViewPager.OnPageChangeListener {
 
 	protected static final String TAG = "MainActivity";
-	//	// textview for unread message count
-//	private TextView unreadLabel;
-//	// textview for unread event message
-//	private TextView unreadAddressLable;
-//
-//	private Button[] mTabs;
-//	private ContactListFragment contactListFragment;
-//	private Fragment[] fragments;
-//	private int index;
-//	private int currentTabIndex;
 	// user logged into another device
 	public boolean isConflict = false;
 	@BindView(R.id.txt_left)
@@ -94,13 +85,82 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 	MFViewPager mLayoutViewpage;
 	@BindView(R.id.layout_tabhost)
 	DMTabHost mLayoutTabhost;
+	MainTabAdpter adapter;
+	TitlePopup mTitlePopup;
+	TitlePopup.OnItemOnClickListener mOnItemOnClickListener = new TitlePopup.OnItemOnClickListener() {
+		@Override
+		public void onItemClick(ActionItem item, int position) {
+			switch (position){
+				case 0:
+					break;
+				case 1:
+					MFGT.gotoAddFirend(MainActivity.this);
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+			}
+		}
+	};
+	EMMessageListener messageListener = new EMMessageListener() {
+
+		@Override
+		public void onMessageReceived(List<EMMessage> messages) {
+			// notify new message
+			for (EMMessage message : messages) {
+				SuperWeChatHelper.getInstance().getNotifier().onNewMsg(message);
+			}
+			refreshUIWithMessage();
+		}
+
+		@Override
+		public void onCmdMessageReceived(List<EMMessage> messages) {
+			//red packet code : 处理红包回执透传消息
+			for (EMMessage message : messages) {
+				EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
+				final String action = cmdMsgBody.action();//获取自定义action
+				if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
+					RedPacketUtil.receiveRedPacketAckMessage(message);
+				}
+			}
+			//end of red packet code
+			refreshUIWithMessage();
+		}
+
+		@Override
+		public void onMessageReadAckReceived(List<EMMessage> messages) {
+		}
+
+		@Override
+		public void onMessageDeliveryAckReceived(List<EMMessage> message) {
+		}
+
+		@Override
+		public void onMessageChanged(EMMessage message, Object change) {
+		}
+	};
+	//	// textview for unread message count
+//	private TextView unreadLabel;
+//	// textview for unread event message
+//	private TextView unreadAddressLable;
+//
+//	private Button[] mTabs;
+	private ContactListFragment contactListFragment;
+//	private Fragment[] fragments;
+//	private int index;
+	private int currentTabIndex;
 	// user account was removed
 	private boolean isCurrentAccountRemoved = false;
-
-	MainTabAdpter adapter;
-
-	TitlePopup mTitlePopup;
-
+	private InviteMessgeDao inviteMessgeDao;
+	private AlertDialog.Builder conflictBuilder;
+	private AlertDialog.Builder accountRemovedBuilder;
+	private boolean isConflictDialogShow;
+	private boolean isAccountRemovedDialogShow;
+	private BroadcastReceiver internalDebugReceiver;
+	private ConversationListFragment conversationListFragment;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
 
 	/**
 	 * check if current user account was remove
@@ -120,6 +180,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 		ButterKnife.bind(this);
 		// runtime permission for android 6.0, just require all permissions here for simple
 		requestPermissions();
+		contactListFragment=new ContactListFragment();
 		initView();
 		umeng();
 
@@ -129,7 +190,6 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 		inviteMessgeDao = new InviteMessgeDao(this);
 		UserDao userDao = new UserDao(this);
 //		conversationListFragment = new ConversationListFragment();
-//		contactListFragment = new ContactListFragment();
 //		SettingsFragment settingFragment = new SettingsFragment();
 //		fragments = new Fragment[] { conversationListFragment, contactListFragment, settingFragment};
 //
@@ -221,76 +281,22 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 		adapter.clear();
 		mLayoutViewpage.setAdapter(adapter);
 		mLayoutViewpage.setOffscreenPageLimit(4);
-		adapter.addFragment(new ConversationListFragment(), getString(R.string.app_name));
+		adapter.addFragment(conversationListFragment, getString(R.string.app_name));
 		adapter.addFragment(new ContactListFragment(), getString(R.string.contacts));
 		adapter.addFragment(new DiscoverFragment(), getString(R.string.discover));
 		adapter.addFragment(new ProfileFragment(), getString(R.string.me));
 		adapter.notifyDataSetChanged();
+		currentTabIndex = 0;
 		mLayoutTabhost.setChecked(0);
 		mLayoutTabhost.setOnCheckedChangeListener(this);
 		mLayoutViewpage.setOnPageChangeListener(this);
 		mTitlePopup = new TitlePopup(this, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		mTitlePopup.setItemOnClickListener(mOnItemOnClickListener);
 		mTitlePopup.addAction(new ActionItem(this, R.string.menu_groupchat, R.drawable.icon_menu_group));
 		mTitlePopup.addAction(new ActionItem(this, R.string.menu_addfriend, R.drawable.icon_menu_addfriend));
 		mTitlePopup.addAction(new ActionItem(this, R.string.menu_qrcode, R.drawable.icon_menu_sao));
 		mTitlePopup.addAction(new ActionItem(this, R.string.menu_money, R.drawable.icon_menu_money));
-		mTitlePopup.setItemOnClickListener(mOnItemOnClickListener);
 	}
-	TitlePopup.OnItemOnClickListener mOnItemOnClickListener = new TitlePopup.OnItemOnClickListener() {
-		@Override
-		public void onItemClick(ActionItem item, int position) {
-			switch (position){
-				case 0:
-					break;
-				case 1:
-					MFGT.gotoAddFirend(MainActivity.this);
-					break;
-				case 2:
-					break;
-				case 3:
-					break;
-			}
-		}
-	};
-
-
-	EMMessageListener messageListener = new EMMessageListener() {
-
-		@Override
-		public void onMessageReceived(List<EMMessage> messages) {
-			// notify new message
-			for (EMMessage message : messages) {
-				SuperWeChatHelper.getInstance().getNotifier().onNewMsg(message);
-			}
-			refreshUIWithMessage();
-		}
-
-		@Override
-		public void onCmdMessageReceived(List<EMMessage> messages) {
-			//red packet code : 处理红包回执透传消息
-			for (EMMessage message : messages) {
-				EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
-				final String action = cmdMsgBody.action();//获取自定义action
-				if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
-					RedPacketUtil.receiveRedPacketAckMessage(message);
-				}
-			}
-			//end of red packet code
-			refreshUIWithMessage();
-		}
-
-		@Override
-		public void onMessageReadAckReceived(List<EMMessage> messages) {
-		}
-
-		@Override
-		public void onMessageDeliveryAckReceived(List<EMMessage> message) {
-		}
-
-		@Override
-		public void onMessageChanged(EMMessage message, Object change) {
-		}
-	};
 
 	private void refreshUIWithMessage() {
 		runOnUiThread(new Runnable() {
@@ -329,11 +335,12 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 //                    if (conversationListFragment != null) {
 //                        conversationListFragment.refresh();
 //                    }
-//                } else if (currentTabIndex == 1) {
-//                    if(contactListFragment != null) {
-//                        contactListFragment.refresh();
-//                    }
-//                }
+//                } else
+					if (currentTabIndex == 1) {
+                    if(contactListFragment != null) {
+                        contactListFragment.refresh();
+                    }
+                }
 				String action = intent.getAction();
 				if (action.equals(Constant.ACTION_GROUP_CHANAGED)) {
 					if (EaseCommonUtils.getTopActivity(MainActivity.this).equals(GroupsActivity.class.getName())) {
@@ -359,6 +366,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 
 	@Override
 	public void onPageSelected(int position) {
+		currentTabIndex=position;
 		mLayoutTabhost.setChecked(position);
 		mLayoutViewpage.setCurrentItem(position);
 	}
@@ -370,45 +378,13 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 
 	@Override
 	public void onCheckedChange(int checkedPosition, boolean byUser) {
+		currentTabIndex=checkedPosition;
 		mLayoutViewpage.setCurrentItem(checkedPosition, false);
 	}
 
 	@OnClick(R.id.img_right)
 	public void showPop() {
 		mTitlePopup.show(findViewById(R.id.layout_title));
-	}
-
-	public class MyContactListener implements EMContactListener {
-		@Override
-		public void onContactAdded(String username) {
-		}
-
-		@Override
-		public void onContactDeleted(final String username) {
-			runOnUiThread(new Runnable() {
-				public void run() {
-					if (ChatActivity.activityInstance != null && ChatActivity.activityInstance.toChatUsername != null &&
-							username.equals(ChatActivity.activityInstance.toChatUsername)) {
-						String st10 = getResources().getString(R.string.have_you_removed);
-						Toast.makeText(MainActivity.this, ChatActivity.activityInstance.getToChatUsername() + st10, Toast.LENGTH_LONG)
-								.show();
-						ChatActivity.activityInstance.finish();
-					}
-				}
-			});
-		}
-
-		@Override
-		public void onContactInvited(String username, String reason) {
-		}
-
-		@Override
-		public void onContactAgreed(String username) {
-		}
-
-		@Override
-		public void onContactRefused(String username) {
-		}
 	}
 
 	private void unregisterBroadcastReceiver() {
@@ -452,11 +428,12 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int count = getUnreadAddressCountTotal();
-//				if (count > 0) {
-//					unreadAddressLable.setVisibility(View.VISIBLE);
-//				} else {
-//					unreadAddressLable.setVisibility(View.INVISIBLE);
-//				}
+				L.e(TAG,"updateUnreadAddressLable,count="+count);
+				if (count > 0) {
+					mLayoutTabhost.setVisibility(View.VISIBLE);
+				} else {
+					mLayoutTabhost.setVisibility(View.INVISIBLE);
+				}
 			}
 		});
 
@@ -488,8 +465,6 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 		}
 		return unreadMsgCountTotal - chatroomUnreadMsgCount;
 	}
-
-	private InviteMessgeDao inviteMessgeDao;
 
 	@Override
 	protected void onResume() {
@@ -532,15 +507,6 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-
-	private AlertDialog.Builder conflictBuilder;
-	private AlertDialog.Builder accountRemovedBuilder;
-	private boolean isConflictDialogShow;
-	private boolean isAccountRemovedDialogShow;
-	private BroadcastReceiver internalDebugReceiver;
-	private ConversationListFragment conversationListFragment;
-	private BroadcastReceiver broadcastReceiver;
-	private LocalBroadcastManager broadcastManager;
 
 	/**
 	 * show the dialog when user logged into another device
@@ -663,5 +629,38 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
 										   @NonNull int[] grantResults) {
 		PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
+	}
+
+	public class MyContactListener implements EMContactListener {
+		@Override
+		public void onContactAdded(String username) {
+		}
+
+		@Override
+		public void onContactDeleted(final String username) {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if (ChatActivity.activityInstance != null && ChatActivity.activityInstance.toChatUsername != null &&
+							username.equals(ChatActivity.activityInstance.toChatUsername)) {
+						String st10 = getResources().getString(R.string.have_you_removed);
+						Toast.makeText(MainActivity.this, ChatActivity.activityInstance.getToChatUsername() + st10, Toast.LENGTH_LONG)
+								.show();
+						ChatActivity.activityInstance.finish();
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onContactInvited(String username, String reason) {
+		}
+
+		@Override
+		public void onContactAgreed(String username) {
+		}
+
+		@Override
+		public void onContactRefused(String username) {
+		}
 	}
 }
