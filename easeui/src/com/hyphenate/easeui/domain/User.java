@@ -6,6 +6,10 @@ import java.io.Serializable;
 
 
 public class User implements Serializable {
+	/**
+	 * initial letter for nickname
+	 */
+	protected String initialLetter;
 	private String muserName;
 	private String muserNick;
 	private Integer mavatarId;
@@ -13,11 +17,6 @@ public class User implements Serializable {
 	private String mavatarSuffix;
 	private Integer mavatarType;
 	private String mavatarLastUpdateTime;
-
-	/**
-	 * initial letter for nickname
-	 */
-	protected String initialLetter;
 	
 	public User() {
 		super();
@@ -87,12 +86,12 @@ public class User implements Serializable {
 		this.mavatarLastUpdateTime = mavatarLastUpdateTime;
 	}
 	
-	public void setMAvatarSuffix(String mavatarSuffix) {
-		this.mavatarSuffix = mavatarSuffix == null?".jpg":mavatarSuffix;
-	}
-
 	public String getMAvatarSuffix() {
 		return mavatarSuffix;
+	}
+
+	public void setMAvatarSuffix(String mavatarSuffix) {
+		this.mavatarSuffix = mavatarSuffix == null?".jpg":mavatarSuffix;
 	}
 
 //	public String getInitialLetter() {
@@ -108,10 +107,16 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UserAvatar [muserName=" + muserName + ", muserNick=" + muserNick + ", mavatarId=" + mavatarId
-				+ ", mavatarPath=" + mavatarPath + ", mavatarSuffix=" + mavatarSuffix + ", mavatarType=" + mavatarType
-				+ ", mavatarLastUpdateTime=" + mavatarLastUpdateTime + "]";
-	}
+		return "User{" +
+				"muserName='" + muserName + '\'' +
+				", muserNick='" + muserNick + '\'' +
+				", mavatarId=" + mavatarId +
+				", mavatarPath='" + mavatarPath + '\'' +
+				", mavatarSuffix='" + mavatarSuffix + '\'' +
+				", mavatarType=" + mavatarType +
+				", mavatarLastUpdateTime='" + mavatarLastUpdateTime + '\'' +
+				", initialLetter='" + initialLetter + '\'' +
+				'}';	}
 	public String getInitialLetter() {
 		if(initialLetter == null){
 			EaseCommonUtils.setAppUserInitialLetter(this);
