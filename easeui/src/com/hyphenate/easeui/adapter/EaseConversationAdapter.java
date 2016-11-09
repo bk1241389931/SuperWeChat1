@@ -38,17 +38,17 @@ import java.util.List;
  */
 public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
     private static final String TAG = "ChatAllHistoryAdapter";
-    private List<EMConversation> conversationList;
-    private List<EMConversation> copyConversationList;
-    private ConversationFilter conversationFilter;
-    private boolean notiyfyByFilter;
-    
     protected int primaryColor;
     protected int secondaryColor;
     protected int timeColor;
     protected int primarySize;
     protected int secondarySize;
     protected float timeSize;
+    private List<EMConversation> conversationList;
+    private List<EMConversation> copyConversationList;
+    private ConversationFilter conversationFilter;
+    private boolean notiyfyByFilter;
+    private EaseConversationListHelper cvsListHelper;
 
     public EaseConversationAdapter(Context context, int resource,
                                    List<EMConversation> objects) {
@@ -75,7 +75,7 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
     public long getItemId(int position) {
         return position;
     }
-
+    
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -100,7 +100,7 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
         EMConversation conversation = getItem(position);
         // get username or group id
         String username = conversation.getUserName();
-        
+
         if (conversation.getType() == EMConversationType.GroupChat) {
             String groupId = conversation.getUserName();
             if(EaseAtMessageHelper.get().hasAtMeMsg(groupId)){
@@ -118,8 +118,8 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
             holder.name.setText(room != null && !TextUtils.isEmpty(room.getName()) ? room.getName() : username);
             holder.motioned.setVisibility(View.GONE);
         }else {
-            EaseUserUtils.setUserAvatar(getContext(), username, holder.avatar);
-            EaseUserUtils.setUserNick(username, holder.name);
+            EaseUserUtils.setAppUserAvatar(getContext(), username, holder.avatar);
+            EaseUserUtils.setAppUserNick(username, holder.name);
             holder.motioned.setVisibility(View.GONE);
         }
 
@@ -150,7 +150,7 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
                 holder.msgState.setVisibility(View.GONE);
             }
         }
-        
+
         //set property
         holder.name.setTextColor(primaryColor);
         holder.message.setTextColor(secondaryColor);
@@ -182,7 +182,6 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
         }
         return conversationFilter;
     }
-    
 
     public void setPrimaryColor(int primaryColor) {
         this.primaryColor = primaryColor;
@@ -208,7 +207,28 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
         this.timeSize = timeSize;
     }
 
+    public void setCvsListHelper(EaseConversationListHelper cvsListHelper){
+        this.cvsListHelper = cvsListHelper;
+    }
 
+    private static class ViewHolder {
+        /** who you chat with */
+        TextView name;
+        /** unread message count */
+        TextView unreadLabel;
+        /** content of last message */
+        TextView message;
+        /** time of last message */
+        TextView time;
+        /** avatar */
+        ImageView avatar;
+        /** status of last message */
+        View msgState;
+        /** layout */
+        RelativeLayout list_itease_layout;
+        TextView motioned;
+    }
+    
     private class ConversationFilter extends Filter {
         List<EMConversation> mOriginalValues = null;
 
@@ -234,7 +254,7 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
                 for (int i = 0; i < count; i++) {
                     final EMConversation value = mOriginalValues.get(i);
                     String username = value.getUserName();
-                    
+
                     EMGroup group = EMClient.getInstance().groupManager().getGroup(username);
                     if(group != null){
                         username = group.getGroupName();
@@ -281,30 +301,6 @@ public class EaseConversationAdapter extends ArrayAdapter<EMConversation> {
                 notifyDataSetInvalidated();
             }
         }
-    }
-
-    private EaseConversationListHelper cvsListHelper;
-
-    public void setCvsListHelper(EaseConversationListHelper cvsListHelper){
-        this.cvsListHelper = cvsListHelper;
-    }
-    
-    private static class ViewHolder {
-        /** who you chat with */
-        TextView name;
-        /** unread message count */
-        TextView unreadLabel;
-        /** content of last message */
-        TextView message;
-        /** time of last message */
-        TextView time;
-        /** avatar */
-        ImageView avatar;
-        /** status of last message */
-        View msgState;
-        /** layout */
-        RelativeLayout list_itease_layout;
-        TextView motioned;
     }
 }
 
