@@ -86,20 +86,20 @@ public class UserDao {
 	    SuperWeChatDBManager.getInstance().saveContact(user);
 	}
 	
+    public List<String>  getDisabledGroups(){
+        return SuperWeChatDBManager.getInstance().getDisabledGroups();
+    }
+    
 	public void setDisabledGroups(List<String> groups){
 	    SuperWeChatDBManager.getInstance().setDisabledGroups(groups);
     }
     
-    public List<String>  getDisabledGroups(){       
-        return SuperWeChatDBManager.getInstance().getDisabledGroups();
+    public List<String> getDisabledIds(){
+        return SuperWeChatDBManager.getInstance().getDisabledIds();
     }
     
     public void setDisabledIds(List<String> ids){
         SuperWeChatDBManager.getInstance().setDisabledIds(ids);
-    }
-    
-    public List<String> getDisabledIds(){
-        return SuperWeChatDBManager.getInstance().getDisabledIds();
     }
     
     public Map<String, RobotUser> getRobotUser(){
@@ -122,5 +122,12 @@ public class UserDao {
 
 	public void saveAppContactList(List<User> contactList) {
 		SuperWeChatDBManager.getInstance().saveAppContactList(contactList);
+	}
+	/**
+	 * delete a contact
+	 * @param username
+	 */
+	public void deleteAppContact(String username){
+		SuperWeChatDBManager.getInstance().deleteAppContact(username);
 	}
 }
