@@ -57,6 +57,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.superwechat.Constant;
+import cn.ucai.superwechat.I;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.adapter.MainTabAdpter;
@@ -474,6 +475,12 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 			updateUnreadAddressLable();
 		}
 
+		boolean extra = getIntent().getBooleanExtra(I.ACTION_BACK_CONVERSATION, false);
+		L.e(TAG,"extra="+extra);
+		if(extra){
+			mLayoutTabhost.setChecked(0);
+		}
+
 		// unregister this event listener when this activity enters the
 		// background
 		SuperWeChatHelper sdkHelper = SuperWeChatHelper.getInstance();
@@ -586,6 +593,12 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 			showConflictDialog();
 		} else if (intent.getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
 			showAccountRemovedDialog();
+		}
+
+		boolean isBack = intent.getBooleanExtra(I.ACTION_BACK_CONVERSATION, false);
+		L.e(TAG,"isBack="+isBack);
+		if(isBack){
+			mLayoutTabhost.setChecked(0);
 		}
 	}
 
