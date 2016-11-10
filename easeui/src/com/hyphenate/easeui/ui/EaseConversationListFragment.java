@@ -48,21 +48,59 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     protected FrameLayout errorItemContainer;
 
     protected boolean isConflict;
-    
+    protected Handler handler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+            case 0:
+                onConnectionDisconnected();
+                break;
+            case 1:
+                onConnectionConnected();
+                break;
+
+            case MSG_REFRESH:
+	            {
+	            	conversationList.clear();
+	                conversationList.addAll(loadConversationList());
+	                conversationListView.refresh();
+	                break;
+	            }
+            default:
+                break;
+            }
+        }
+    };
     protected EMConversationListener convListener = new EMConversationListener(){
 
 		@Override
 		public void onCoversationUpdate() {
 			refresh();
 		}
-    	
+
     };
+    protected EMConnectionListener connectionListener = new EMConnectionListener() {
+
+        @Override
+        public void onDisconnected(int error) {
+            if (error == EMError.USER_REMOVED || error == EMError.USER_LOGIN_ANOTHER_DEVICE) {
+                isConflict = true;
+            } else {
+               handler.sendEmptyMessage(0);
+            }
+        }
+
+        @Override
+        public void onConnected() {
+            handler.sendEmptyMessage(1);
+        }
+    };
+    private EaseConversationListItemClickListener listItemClickListener;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.ease_fragment_conversation_list, container, false);
     }
-
+    
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if(savedInstanceState != null && savedInstanceState.getBoolean("isConflict", false))
@@ -84,7 +122,7 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     protected void setUpView() {
         conversationList.addAll(loadConversationList());
         conversationListView.init(conversationList);
-        
+
         if(listItemClickListener != null){
             conversationListView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -95,9 +133,9 @@ public class EaseConversationListFragment extends EaseBaseFragment{
                 }
             });
         }
-        
+
         EMClient.getInstance().addConnectionListener(connectionListener);
-        
+
         query.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 conversationListView.filter(s);
@@ -121,9 +159,9 @@ public class EaseConversationListFragment extends EaseBaseFragment{
                 hideSoftKeyboard();
             }
         });
-        
+
         conversationListView.setOnTouchListener(new OnTouchListener() {
-            
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideSoftKeyboard();
@@ -131,48 +169,6 @@ public class EaseConversationListFragment extends EaseBaseFragment{
             }
         });
     }
-    
-    
-    protected EMConnectionListener connectionListener = new EMConnectionListener() {
-        
-        @Override
-        public void onDisconnected(int error) {
-            if (error == EMError.USER_REMOVED || error == EMError.USER_LOGIN_ANOTHER_DEVICE) {
-                isConflict = true;
-            } else {
-               handler.sendEmptyMessage(0);
-            }
-        }
-        
-        @Override
-        public void onConnected() {
-            handler.sendEmptyMessage(1);
-        }
-    };
-    private EaseConversationListItemClickListener listItemClickListener;
-    
-    protected Handler handler = new Handler(){
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-            case 0:
-                onConnectionDisconnected();
-                break;
-            case 1:
-                onConnectionConnected();
-                break;
-            
-            case MSG_REFRESH:
-	            {
-	            	conversationList.clear();
-	                conversationList.addAll(loadConversationList());
-	                conversationListView.refresh();
-	                break;
-	            }
-            default:
-                break;
-            }
-        }
-    };
     
     /**
      * connected to server
@@ -196,6 +192,8 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     	if(!handler.hasMessages(MSG_REFRESH)){
     		handler.sendEmptyMessage(MSG_REFRESH);
     	}
+        query.getText().clear();
+        hideSoftKeyboard();
     }
     
     /**
@@ -292,20 +290,20 @@ public class EaseConversationListFragment extends EaseBaseFragment{
         }
     }
     
-    public interface EaseConversationListItemClickListener {
-        /**
-         * click event for conversation list
-         * @param conversation -- clicked item
-         */
-        void onListItemClicked(EMConversation conversation);
-    }
-    
     /**
      * set conversation list item click listener
      * @param listItemClickListener
      */
     public void setConversationListItemClickListener(EaseConversationListItemClickListener listItemClickListener){
         this.listItemClickListener = listItemClickListener;
+    }
+    
+    public interface EaseConversationListItemClickListener {
+        /**
+         * click event for conversation list
+         * @param conversation -- clicked item
+         */
+        void onListItemClicked(EMConversation conversation);
     }
 
 }
