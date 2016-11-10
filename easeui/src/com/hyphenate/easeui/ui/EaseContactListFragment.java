@@ -317,6 +317,7 @@ public class EaseContactListFragment extends EaseBaseFragment {
      */
     public void setContactListItemClickListener(EaseContactListItemClickListener listItemClickListener){
         this.listItemClickListener = listItemClickListener;
+        contactsMap.remove(EMClient.getInstance().getCurrentUser());
     }
 
     public interface EaseContactListItemClickListener {
