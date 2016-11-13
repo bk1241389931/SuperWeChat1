@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -36,22 +37,23 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMCursorResult;
 import com.hyphenate.chat.EMGroupInfo;
 import cn.ucai.superwechat.R;
+
+import com.hyphenate.easeui.utils.EaseUserUtils;
 import com.hyphenate.exceptions.HyphenateException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PublicGroupsActivity extends BaseActivity {
+	private final int pagesize = 20;
 	private ProgressBar pb;
 	private ListView listView;
 	private GroupsAdapter adapter;
-	
 	private List<EMGroupInfo> groupsList;
 	private boolean isLoading;
 	private boolean isFirstLoading = true;
 	private boolean hasMoreData = true;
 	private String cursor;
-	private final int pagesize = 20;
     private LinearLayout footLoadingLayout;
     private ProgressBar footLoadingPB;
     private TextView footLoadingText;
@@ -160,16 +162,23 @@ public class PublicGroupsActivity extends BaseActivity {
             }
         }).start();
 	}
+
+	public void back(View view){
+		finish();
+	}
+	
 	/**
 	 * adapter
 	 *
 	 */
 	private class GroupsAdapter extends ArrayAdapter<EMGroupInfo> {
 
+        Context mContet;
 		private LayoutInflater inflater;
 
 		public GroupsAdapter(Context context, int res, List<EMGroupInfo> groups) {
 			super(context, res, groups);
+            mContet =context;
 			this.inflater = LayoutInflater.from(context);
 		}
 
@@ -181,11 +190,9 @@ public class PublicGroupsActivity extends BaseActivity {
 
 			((TextView) convertView.findViewById(R.id.name)).setText(getItem(position).getGroupName());
 
+            EaseUserUtils.setAppGroupAvatar(mContet,getItem(position).getGroupId(),
+                    (ImageView) convertView.findViewById(R.id.avatar));
 			return convertView;
 		}
-	}
-	
-	public void back(View view){
-		finish();
 	}
 }

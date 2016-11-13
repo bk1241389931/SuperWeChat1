@@ -45,104 +45,140 @@ public class Group implements Serializable{
 		this.mgroupIsPublic = mgroupIsPublic;
 		this.mgroupAllowInvites = mgroupAllowInvites;
 	}
+
+	public static String getAvatar(String hxid){
+		String path = "http://101.251.196.90:8000/SuperWeChatServerV2.0/downloadAvatar?name_or_hxid="+hxid+"&avatarType=group_icon&m_avatar_suffix=.jpg&updatetime=";
+		return path;
+	}
+
 	public Integer getMAvatarId() {
 		return mavatarId;
 	}
+
 	public void setMAvatarId(Integer mavatarId) {
 		this.mavatarId = mavatarId;
 	}
+
 	public String getMAvatarUserName() {
 		return mavatarUserName;
 	}
+
 	public void setMAvatarUserName(String mavatarUserName) {
 		this.mavatarUserName = mavatarUserName;
 	}
+
 	public String getMAvatarPath() {
 		return mavatarPath;
 	}
+
 	public void setMAvatarPath(String mavatarPath) {
 		this.mavatarPath = mavatarPath;
 	}
+
 	public Integer getMAvatarType() {
 		return mavatarType;
 	}
+
 	public void setMAvatarType(Integer mavatarType) {
 		this.mavatarType = mavatarType;
 	}
+
 	public String getMAvatarLastUpdateTime() {
 		return mavatarLastUpdateTime;
 	}
+
 	public void setMAvatarLastUpdateTime(String mavatarLastUpdateTime) {
 		this.mavatarLastUpdateTime = mavatarLastUpdateTime;
 	}
+
 	public Integer getMGroupId() {
 		return mgroupId;
 	}
+
 	public void setMGroupId(Integer mgroupId) {
 		this.mgroupId = mgroupId;
 	}
+
 	public String getMGroupHxid() {
 		return mgroupHxid;
 	}
+
 	public void setMGroupHxid(String mgroupHxid) {
 		this.mgroupHxid = mgroupHxid;
 	}
+
 	public String getMGroupName() {
 		return mgroupName;
 	}
+
 	public void setMGroupName(String mgroupName) {
 		this.mgroupName = mgroupName;
 	}
+
 	public String getMGroupDescription() {
 		return mgroupDescription;
 	}
+
 	public void setMGroupDescription(String mgroupDescription) {
 		this.mgroupDescription = mgroupDescription;
 	}
+
 	public String getMGroupOwner() {
 		return mgroupOwner;
 	}
+
 	public void setMGroupOwner(String mgroupOwner) {
 		this.mgroupOwner = mgroupOwner;
 	}
+
 	public String getMGroupLastModifiedTime() {
 		return mgroupLastModifiedTime;
 	}
+
 	public void setMGroupLastModifiedTime(String mgroupLastModifiedTime) {
 		this.mgroupLastModifiedTime = mgroupLastModifiedTime;
 	}
+
 	public Integer getMGroupMaxUsers() {
 		return mgroupMaxUsers;
 	}
+
 	public void setMGroupMaxUsers(Integer mgroupMaxUsers) {
 		this.mgroupMaxUsers = mgroupMaxUsers;
 	}
+
 	public Integer getMGroupAffiliationsCount() {
 		return mgroupAffiliationsCount;
 	}
+
 	public void setMGroupAffiliationsCount(Integer mgroupAffiliationsCount) {
 		this.mgroupAffiliationsCount = mgroupAffiliationsCount;
 	}
+
 	public Boolean getMGroupIsPublic() {
 		return mgroupIsPublic;
 	}
+
 	public void setMGroupIsPublic(Boolean mgroupIsPublic) {
 		this.mgroupIsPublic = mgroupIsPublic;
 	}
+
 	public Boolean getMGroupAllowInvites() {
 		return mgroupAllowInvites;
 	}
+	
 	public void setMGroupAllowInvites(Boolean mgroupAllowInvites) {
 		this.mgroupAllowInvites = mgroupAllowInvites;
 	}
-	
+
 	public String getMAvatarSuffix() {
-		return mavatarSuffix;
+		return mavatarSuffix==null?".jpg":mavatarSuffix;
 	}
+	
 	public void setMAvatarSuffix(String mavatarSuffix) {
 		this.mavatarSuffix = mavatarSuffix;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "GroupAvatar [mavatarId=" + mavatarId + ", mavatarUserName=" + mavatarUserName + ", mavatarPath="
@@ -153,5 +189,9 @@ public class Group implements Serializable{
 				+ ", mgroupMaxUsers=" + mgroupMaxUsers + ", mgroupAffiliationsCount=" + mgroupAffiliationsCount
 				+ ", mgroupIsPublic=" + mgroupIsPublic + ", mgroupAllowInvites=" + mgroupAllowInvites + "]";
 	}
-	
+
+	public String getAvatar() {
+		String path = "http://101.251.196.90:8000/SuperWeChatServerV2.0/downloadAvatar?name_or_hxid="+getMGroupHxid()+"&avatarType=group_icon&m_avatar_suffix="+getMAvatarSuffix()+"&updatetime="+getMAvatarLastUpdateTime();
+		return path;
+	}
 }

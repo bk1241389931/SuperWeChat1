@@ -9,7 +9,7 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_top_bar"
-        android:background="@color/top_bar_normal_bg"
+        android:background="@color/colorPrimary"
         android:gravity="center_vertical" >
 
         <include layout="@layout/ease_commom_back_btn" />
@@ -52,8 +52,8 @@
         android:id="@+id/rl_searched_group"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:onClick="enterToDetails"
         android:background="@drawable/ease_mm_listitem"
+        android:onClick="enterToDetails"
         android:visibility="gone" >
 
         <ImageView
